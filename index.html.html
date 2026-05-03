@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oumaima HENI — Ingénieure Full Stack & DevOps</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,300;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   RESET & TOKENS
+══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+
+:root {
+  --bg:       #0b0c0e;
+  --surface:  #111316;
+  --surface2: #181a1f;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.12);
+  --text:     #e8e4dc;
+  --muted:    #6b6860;
+  --soft:     #9b9790;
+  --accent:   #e8c547;
+  --accent2:  #f0d060;
+  --green:    #4ade80;
+  --serif:    'Fraunces', Georgia, serif;
+  --sans:     'DM Sans', system-ui, sans-serif;
+  --nav-h:    68px;
+  --max:      1200px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── scrollbar ── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+/* ══════════════════════════════════════════
+   NAVIGATION — FIXED, SCROLL-AWARE
+══════════════════════════════════════════ */
+#nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+  height: var(--nav-h);
+  display: flex; align-items: center;
+  padding: 0 2.5rem;
+  background: rgba(11,12,14,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s, background 0.3s;
+}
+#nav.scrolled {
+  border-color: var(--border);
+  background: rgba(11,12,14,0.97);
+}
+
+.nav-inner {
+  width: 100%; max-width: var(--max);
+  margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.nav-logo {
+  font-family: var(--serif);
+  font-size: 1.15rem; font-weight: 500;
+  color: var(--text); text-decoration: none;
+  letter-spacing: 0.01em; white-space: nowrap;
+  flex-shrink: 0;
+}
+.nav-logo span { color: var(--accent); font-style: italic; font-weight: 300; }
+
+/* desktop links */
+.nav-links {
+  display: flex; align-items: center; gap: 0.25rem;
+  list-style: none;
+}
+.nav-links a {
+  display: block;
+  padding: 6px 14px;
+  font-size: 0.75rem; font-weight: 400;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute; bottom: 0; left: 50%; right: 50%;
+  height: 1px; background: var(--accent);
+  transition: left 0.25s, right 0.25s;
+}
+.nav-links a:hover,
+.nav-links a.active { color: var(--text); }
+.nav-links a.active::after { left: 14px; right: 14px; }
+.nav-links a:hover::after { left: 14px; right: 14px; }
+
+.nav-badge {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(232,197,71,0.1);
+  border: 1px solid rgba(232,197,71,0.25);
+  border-radius: 40px;
+  padding: 5px 14px 5px 10px;
+  font-size: 0.72rem; font-weight: 500; letter-spacing: 0.04em;
+  color: var(--accent);
+}
+.nav-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: blink 2.5s ease infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* hamburger */
+.nav-burger {
+  display: none; flex-direction: column;
+  gap: 5px; cursor: pointer; padding: 4px;
+  background: none; border: none;
+}
+.nav-burger span {
+  display: block; width: 22px; height: 1.5px;
+  background: var(--text);
+  transition: transform 0.3s, opacity 0.3s;
+}
+.nav-burger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.nav-burger.open span:nth-child(2) { opacity: 0; }
+.nav-burger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* mobile drawer */
+#nav-drawer {
+  position: fixed; top: var(--nav-h); left: 0; right: 0; z-index: 998;
+  background: rgba(11,12,14,0.98);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 1.5rem 2rem 2rem;
+  display: none; flex-direction: column; gap: 0.25rem;
+  transform: translateY(-8px);
+  opacity: 0;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+#nav-drawer.open {
+  display: flex;
+  transform: translateY(0);
+  opacity: 1;
+}
+#nav-drawer a {
+  display: block; padding: 12px 0;
+  font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--soft); text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  transition: color 0.2s;
+}
+#nav-drawer a:hover, #nav-drawer a.active { color: var(--accent); }
+#nav-drawer a:last-child { border-bottom: none; }
+
+/* ══════════════════════════════════════════
+   SHARED LAYOUT
+══════════════════════════════════════════ */
+.container {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 2.5rem;
+}
+
+section {
+  padding: 6rem 0;
+  border-top: 1px solid var(--border);
+}
+section:first-of-type { border-top: none; }
+
+.sec-label {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 3.5rem;
+}
+.sec-label-num {
+  font-size: 0.68rem; letter-spacing: 0.22em; font-weight: 500;
+  color: var(--accent); text-transform: uppercase;
+}
+.sec-label-line { flex: 1; height: 1px; background: var(--border); }
+.sec-label-text {
+  font-size: 0.68rem; letter-spacing: 0.12em; font-weight: 400;
+  color: var(--muted); text-transform: uppercase;
+}
+
+h2.sec-title {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 300; letter-spacing: -0.02em;
+  line-height: 1.1; margin-bottom: 3rem;
+}
+h2.sec-title em { font-style: italic; color: var(--accent); font-weight: 300; }
+
+/* ══════════════════════════════════════════
+   HERO
+══════════════════════════════════════════ */
+#hero {
+  min-height: 100vh;
+  padding-top: var(--nav-h);
+  display: flex; align-items: center;
+  position: relative; overflow: hidden;
+}
+
+/* subtle grid bg */
+#hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 40%, black 30%, transparent 100%);
+}
+
+/* glow */
+#hero::after {
+  content: '';
+  position: absolute; top: 20%; left: 55%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(232,197,71,0.07) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 4rem; align-items: center;
+  width: 100%; max-width: var(--max);
+  margin: 0 auto; padding: 4rem 2.5rem;
+}
+
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-bottom: 2rem;
+  font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--soft);
+  animation: fadeUp 0.6s 0.1s both;
+}
+.hero-tag::before {
+  content: '';
+  width: 28px; height: 1px; background: var(--accent);
+}
+
+.hero-name {
+  font-family: var(--serif);
+  font-size: clamp(3.5rem, 6vw, 5.5rem);
+  font-weight: 700; line-height: 0.95;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.15em;
+  animation: fadeUp 0.6s 0.15s both;
+}
+.hero-name-italic {
+  font-family: var(--serif);
+  font-size: clamp(3.5rem, 6vw, 5.5rem);
+  font-weight: 300; font-style: italic;
+  line-height: 1; letter-spacing: -0.02em;
+  color: var(--accent);
+  display: block; margin-bottom: 1.5rem;
+  animation: fadeUp 0.6s 0.2s both;
+}
+
+.hero-bio {
+  font-size: 0.95rem; line-height: 1.8;
+  color: var(--soft); max-width: 480px;
+  margin-bottom: 2.5rem;
+  border-left: 1px solid var(--accent);
+  padding-left: 1.2rem;
+  animation: fadeUp 0.6s 0.25s both;
+}
+
+.hero-meta {
+  display: flex; flex-direction: column; gap: 0.6rem;
+  margin-bottom: 2.5rem;
+  animation: fadeUp 0.6s 0.3s both;
+}
+.hero-meta a, .hero-meta span {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 0.82rem; color: var(--soft);
+  text-decoration: none; transition: color 0.2s;
+}
+.hero-meta a:hover { color: var(--accent); }
+.meta-icon {
+  font-size: 0.85rem; color: var(--accent);
+  width: 18px; text-align: center;
+}
+
+.hero-buttons {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  animation: fadeUp 0.6s 0.35s both;
+}
+.btn-solid {
+  background: var(--accent); color: #0b0c0e;
+  padding: 11px 26px; border: none; cursor: pointer;
+  font-family: var(--sans); font-size: 0.75rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  text-decoration: none; border-radius: 2px;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-solid:hover { background: var(--accent2); transform: translateY(-2px); }
+.btn-ghost {
+  background: transparent; color: var(--soft);
+  padding: 10px 24px;
+  border: 1px solid var(--border2); cursor: pointer;
+  font-family: var(--sans); font-size: 0.75rem; font-weight: 400;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  text-decoration: none; border-radius: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--soft); }
+
+/* hero right panel */
+.hero-panel {
+  animation: fadeUp 0.6s 0.2s both;
+}
+.hero-photo-wrap {
+  width: 100%; aspect-ratio: 3/4;
+  position: relative; margin-bottom: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.hero-photo-wrap img {
+  width: 100%; height: 100%; object-fit: cover; object-position: top center;
+}
+.hero-initials {
+  font-family: var(--serif);
+  font-size: 7rem; font-weight: 700;
+  color: rgba(255,255,255,0.04);
+  letter-spacing: 0.15em; user-select: none;
+}
+/* photo corner accents */
+.corner { position: absolute; width: 18px; height: 18px; }
+.corner-tl { top: 10px; left: 10px; border-top: 1.5px solid var(--accent); border-left: 1.5px solid var(--accent); }
+.corner-tr { top: 10px; right: 10px; border-top: 1.5px solid var(--accent); border-right: 1.5px solid var(--accent); }
+.corner-bl { bottom: 10px; left: 10px; border-bottom: 1.5px solid var(--accent); border-left: 1.5px solid var(--accent); }
+.corner-br { bottom: 10px; right: 10px; border-bottom: 1.5px solid var(--accent); border-right: 1.5px solid var(--accent); }
+
+.hero-kpis {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border);
+}
+.kpi {
+  background: var(--surface);
+  padding: 1.1rem 0.8rem; text-align: center;
+}
+.kpi-n {
+  display: block;
+  font-family: var(--serif); font-size: 2rem; font-weight: 500;
+  color: var(--accent); line-height: 1;
+}
+.kpi-l {
+  display: block;
+  font-size: 0.65rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted); margin-top: 4px;
+}
+
+/* ══════════════════════════════════════════
+   SKILLS
+══════════════════════════════════════════ */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border);
+}
+.skill-cat {
+  background: var(--surface);
+  padding: 1.8rem 1.6rem;
+  transition: background 0.2s;
+}
+.skill-cat:hover { background: var(--surface2); }
+.skill-cat-name {
+  font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); font-weight: 500;
+  margin-bottom: 1rem; padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--border);
+}
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill {
+  font-size: 0.73rem; padding: 3px 9px;
+  background: var(--surface2); color: var(--soft);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  cursor: default;
+}
+.pill:hover {
+  background: rgba(232,197,71,0.1);
+  color: var(--accent); border-color: rgba(232,197,71,0.3);
+}
+
+/* ══════════════════════════════════════════
+   EXPERIENCE
+══════════════════════════════════════════ */
+.exp-wrap { display: flex; flex-direction: column; }
+.exp-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 0 3rem;
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.exp-row:first-child { border-top: 1px solid var(--border); }
+
+.exp-l {}
+.exp-period {
+  font-size: 0.73rem; letter-spacing: 0.06em;
+  color: var(--accent); font-weight: 500;
+  margin-bottom: 4px;
+}
+.exp-co {
+  font-size: 0.8rem; color: var(--soft); margin-bottom: 8px;
+}
+.exp-badge {
+  display: inline-block;
+  font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 8px;
+  background: rgba(232,197,71,0.08);
+  border: 1px solid rgba(232,197,71,0.2);
+  color: var(--accent); border-radius: 2px;
+}
+
+.exp-r {}
+.exp-title {
+  font-family: var(--serif);
+  font-size: 1.25rem; font-weight: 400;
+  margin-bottom: 0.5rem; line-height: 1.35;
+}
+.exp-desc {
+  font-size: 0.82rem; color: var(--soft);
+  line-height: 1.75; margin-bottom: 0.8rem;
+}
+.exp-stack { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
+.stack-tag {
+  font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 9px;
+  border: 1px solid rgba(232,197,71,0.22);
+  color: var(--accent); border-radius: 2px;
+}
+.exp-ul { list-style: none; }
+.exp-ul li {
+  position: relative; padding-left: 1.1rem;
+  font-size: 0.82rem; color: var(--soft);
+  line-height: 1.7; padding-top: 2px; padding-bottom: 2px;
+}
+.exp-ul li::before {
+  content: '→';
+  position: absolute; left: 0; top: 3px;
+  font-size: 0.72rem; color: var(--accent);
+}
+
+/* ══════════════════════════════════════════
+   PROJECTS
+══════════════════════════════════════════ */
+.proj-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border);
+}
+.proj-card {
+  background: var(--surface);
+  padding: 2rem 2rem;
+  position: relative; overflow: hidden;
+  transition: background 0.25s;
+  cursor: default;
+}
+.proj-card::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1.5px; background: var(--accent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.3s ease;
+}
+.proj-card:hover { background: var(--surface2); }
+.proj-card:hover::after { transform: scaleX(1); }
+
+.proj-bg-num {
+  position: absolute; bottom: -0.5rem; right: 1rem;
+  font-family: var(--serif); font-size: 6rem; font-weight: 700;
+  color: rgba(255,255,255,0.025); line-height: 1;
+  user-select: none;
+}
+.proj-cat {
+  font-size: 0.63rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); font-weight: 500; margin-bottom: 0.6rem;
+}
+.proj-title {
+  font-family: var(--serif);
+  font-size: 1.1rem; font-weight: 400;
+  line-height: 1.35; margin-bottom: 0.7rem;
+}
+.proj-desc {
+  font-size: 0.8rem; color: var(--muted);
+  line-height: 1.75; margin-bottom: 1rem;
+}
+.proj-stack { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 1rem; }
+.proj-stack span {
+  font-size: 0.65rem; letter-spacing: 0.08em;
+  padding: 3px 8px;
+  background: var(--surface2); color: var(--soft);
+  border: 1px solid var(--border); border-radius: 2px;
+}
+.proj-ul { list-style: none; }
+.proj-ul li {
+  font-size: 0.78rem; color: var(--soft);
+  padding: 2px 0 2px 13px; position: relative; line-height: 1.6;
+}
+.proj-ul li::before {
+  content: '·';
+  position: absolute; left: 3px; top: 0;
+  color: var(--accent); font-size: 1rem;
+}
+
+/* ══════════════════════════════════════════
+   EDUCATION
+══════════════════════════════════════════ */
+.edu-wrap {
+  position: relative;
+  padding-left: 2.5rem;
+}
+.edu-wrap::before {
+  content: '';
+  position: absolute; left: 0; top: 10px; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--accent) 0%, var(--border) 100%);
+}
+.edu-item {
+  position: relative;
+  display: grid; grid-template-columns: 160px 1fr;
+  gap: 0 3rem;
+  padding-bottom: 2.5rem; margin-bottom: 0;
+}
+.edu-dot {
+  position: absolute; left: -2.84rem; top: 5px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px rgba(232,197,71,0.2);
+}
+.edu-year {
+  font-size: 0.73rem; letter-spacing: 0.08em;
+  color: var(--accent); padding-top: 3px; font-weight: 500;
+}
+.edu-degree {
+  font-family: var(--serif);
+  font-size: 1.1rem; font-weight: 400;
+  margin-bottom: 4px; line-height: 1.35;
+}
+.edu-school {
+  font-size: 0.8rem; color: var(--soft); margin-bottom: 8px;
+  line-height: 1.5;
+}
+.mention {
+  display: inline-block;
+  font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+  padding: 4px 12px;
+  background: rgba(74,222,128,0.08);
+  border: 1px solid rgba(74,222,128,0.25);
+  color: var(--green); border-radius: 2px;
+}
+
+/* ══════════════════════════════════════════
+   LANGUAGES & INTERESTS
+══════════════════════════════════════════ */
+.lang-int-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+}
+.lang-list { display: flex; flex-direction: column; gap: 1.2rem; }
+.lang-row { display: flex; align-items: center; gap: 1rem; }
+.lang-name { font-size: 0.85rem; color: var(--text); min-width: 90px; }
+.lang-bar {
+  flex: 1; height: 2px; background: var(--border2); border-radius: 1px;
+  position: relative; overflow: hidden;
+}
+.lang-fill {
+  position: absolute; left: 0; top: 0; height: 100%;
+  background: var(--accent); border-radius: 1px;
+}
+.lang-lvl { font-size: 0.72rem; color: var(--muted); min-width: 100px; text-align: right; }
+
+.interests-wrap { display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; }
+.interest {
+  font-size: 0.75rem; letter-spacing: 0.08em;
+  padding: 7px 14px;
+  border: 1px solid var(--border2); color: var(--soft);
+  border-radius: 2px;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  cursor: default;
+}
+.interest:hover {
+  border-color: rgba(232,197,71,0.4);
+  color: var(--accent);
+  background: rgba(232,197,71,0.05);
+}
+
+/* ══════════════════════════════════════════
+   CONTACT
+══════════════════════════════════════════ */
+.contact-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 5rem; align-items: start;
+}
+.contact-heading {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem,2.8vw,2.6rem);
+  font-weight: 300; line-height: 1.25;
+  margin-bottom: 1rem;
+}
+.contact-heading em { font-style: italic; color: var(--accent); }
+.contact-sub {
+  font-size: 0.85rem; color: var(--soft); line-height: 1.8;
+  margin-bottom: 2rem; max-width: 380px;
+}
+.clink {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0.9rem 0; border-bottom: 1px solid var(--border);
+  text-decoration: none; color: var(--soft);
+  transition: color 0.2s;
+}
+.clink:hover { color: var(--accent); }
+.clink:hover .cl-arr { transform: translate(3px,-3px); color: var(--accent); }
+.cl-icon { color: var(--accent); font-size: 0.85rem; width: 18px; text-align: center; }
+.cl-lbl { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); min-width: 90px; }
+.cl-val { font-size: 0.82rem; }
+.cl-arr { margin-left: auto; color: var(--border2); font-size: 1rem; transition: transform 0.2s, color 0.2s; }
+
+/* form */
+.form-box {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  padding: 2.5rem;
+}
+.frow { margin-bottom: 1.4rem; }
+.flbl {
+  display: block; font-size: 0.65rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 7px;
+}
+.finp {
+  width: 100%; background: var(--bg);
+  border: 1px solid var(--border2); padding: 10px 14px;
+  color: var(--text); font-family: var(--sans); font-size: 0.85rem;
+  outline: none; border-radius: 2px;
+  transition: border-color 0.2s;
+}
+.finp:focus { border-color: var(--accent); }
+textarea.finp { height: 90px; resize: none; }
+.f-sub {
+  width: 100%; background: var(--accent); color: #0b0c0e;
+  border: none; padding: 13px;
+  font-family: var(--sans); font-size: 0.75rem; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  cursor: pointer; border-radius: 2px;
+  transition: background 0.2s;
+}
+.f-sub:hover { background: var(--accent2); }
+
+/* ══════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════ */
+footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 2rem 2.5rem;
+}
+.footer-inner {
+  max-width: var(--max); margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem;
+}
+.footer-copy { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.06em; }
+.footer-links { display: flex; gap: 2rem; }
+.footer-links a {
+  font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none; transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--accent); }
+.footer-avail {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.72rem; color: var(--soft); letter-spacing: 0.05em;
+}
+
+/* ══════════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .hero-inner { grid-template-columns: 1fr; padding: 3rem 2rem; }
+  .hero-panel { display: grid; grid-template-columns: 240px 1fr; gap: 2rem; align-items: start; }
+  .hero-photo-wrap { aspect-ratio: auto; height: 300px; }
+  .hero-kpis { margin-top: 0; }
+}
+@media (max-width: 768px) {
+  :root { --nav-h: 60px; }
+  .nav-links { display: none; }
+  .nav-badge { display: none; }
+  .nav-burger { display: flex; }
+  .container { padding: 0 1.25rem; }
+  section { padding: 4rem 0; }
+  .hero-inner { padding: 2rem 1.25rem; }
+  .hero-panel { grid-template-columns: 1fr; }
+  .exp-row { grid-template-columns: 1fr; gap: 0.5rem; }
+  .edu-item { grid-template-columns: 1fr; gap: 0.3rem; }
+  .edu-year { padding-left: 0; }
+  .contact-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .lang-int-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .proj-grid { grid-template-columns: 1fr; }
+  footer { padding: 1.5rem 1.25rem; }
+  .footer-inner { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 480px) {
+  #nav { padding: 0 1.25rem; }
+  .hero-name, .hero-name-italic { font-size: 3rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAVIGATION ══ -->
+<nav id="nav">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">Oumaima <span>HENI</span></a>
+
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#hero"       class="active">Accueil</a></li>
+      <li><a href="#skills">Compétences</a></li>
+      <li><a href="#experience">Expérience</a></li>
+      <li><a href="#projects">Projets</a></li>
+      <li><a href="#education">Formation</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+
+    <div class="nav-badge">
+      <span class="nav-dot"></span>
+      Stage PFE — Fév. 2026
+    </div>
+
+    <button class="nav-burger" id="burger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══ MOBILE DRAWER ══ -->
+<div id="nav-drawer">
+  <a href="#hero"       class="active">Accueil</a>
+  <a href="#skills">Compétences</a>
+  <a href="#experience">Expérience</a>
+  <a href="#projects">Projets</a>
+  <a href="#education">Formation</a>
+  <a href="#contact">Contact</a>
+</div>
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<section id="hero" style="border-top:none; padding:0;">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-tag">Ingénieure en informatique · Sfax, Tunisie</div>
+
+      <div class="hero-name">Oumaima</div>
+      <span class="hero-name-italic">HENI</span>
+
+      <p class="hero-bio">
+        Étudiante en 3ème année cycle ingénieur à l'ISIMS de Sfax, spécialisée en
+        Technologies Web &amp; Multimédia. Passionnée par le développement Full Stack,
+        le DevOps et l'Intelligence Artificielle .
+      </p>
+
+      <div class="hero-meta">
+        <a href="mailto:heni.mayma10@gmail.com">
+          <span class="meta-icon">✉</span> heni.mayma10@gmail.com
+        </a>
+        <a href="tel:+21626919703">
+          <span class="meta-icon">✆</span> +216 26 919 703
+        </a>
+        <a href="https://linkedin.com/in/oumaima-heni-306555241" target="_blank">
+          <span class="meta-icon">in</span> linkedin.com/in/oumaima-heni-306555241
+        </a>
+        <span>
+          <span class="meta-icon">◎</span> Chrarda, Kairouan — Tunisie
+        </span>
+      </div>
+
+      <div class="hero-buttons">
+        <a href="#contact" class="btn-solid">Me contacter</a>
+        <a href="#projects" class="btn-ghost">Voir les projets →</a>
+      </div>
+    </div>
+
+    <div class="hero-panel">
+      <div class="hero-photo-wrap">
+       <img src="oumaima.jpg" alt="Oumaima HENI">
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+      </div>
+      <div class="hero-kpis">
+        <div class="kpi"><span class="kpi-n">4</span><span class="kpi-l">Stages</span></div>
+        <div class="kpi"><span class="kpi-n">6+</span><span class="kpi-l">Projets</span></div>
+        <div class="kpi"><span class="kpi-n">TB</span><span class="kpi-l">Mention</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     COMPÉTENCES
+══════════════════════════════════════ -->
+<section id="skills">
+  <div class="container">
+    <div class="sec-label">
+      <span class="sec-label-num">01</span>
+      <div class="sec-label-line"></div>
+      <span class="sec-label-text">Stack technique</span>
+    </div>
+    <h2 class="sec-title">Compétences <em>techniques</em></h2>
+    <div class="skills-grid">
+      <div class="skill-cat">
+        <div class="skill-cat-name">Langages</div>
+        <div class="pills">
+          <span class="pill">Python</span><span class="pill">Java</span>
+          <span class="pill">C / C#</span><span class="pill">JavaScript</span>
+          <span class="pill">TypeScript</span><span class="pill">SQL</span>
+        </div>
+      </div>
+      <div class="skill-cat">
+        <div class="skill-cat-name">Développement Web</div>
+        <div class="pills">
+          <span class="pill">Angular</span><span class="pill">Node.js</span>
+          <span class="pill">Spring Boot</span><span class="pill">Flask</span>
+          <span class="pill">CakePHP</span><span class="pill">REST API</span>
+          <span class="pill">HTML5 / CSS3</span><span class="pill">Bootstrap</span>
+        </div>
+      </div>
+      <div class="skill-cat">
+        <div class="skill-cat-name">Mobile</div>
+        <div class="pills">
+          <span class="pill">Flutter</span><span class="pill">Dart</span>
+          <span class="pill">Android (Java)</span>
+        </div>
+      </div>
+      <div class="skill-cat">
+        <div class="skill-cat-name">Architecture & DevOps</div>
+        <div class="pills">
+          <span class="pill">Docker</span><span class="pill">GitLab CI/CD</span>
+          <span class="pill">Azure VM</span><span class="pill">Microservices</span>
+          <span class="pill">Spring Cloud</span><span class="pill">Eureka</span>
+          <span class="pill">API Gateway</span><span class="pill">SSH</span>
+        </div>
+      </div>
+      <div class="skill-cat">
+        <div class="skill-cat-name">Bases de données</div>
+        <div class="pills">
+          <span class="pill">MySQL</span><span class="pill">PostgreSQL</span>
+          <span class="pill">MongoDB</span><span class="pill">Oracle</span>
+          <span class="pill">SQL Server</span>
+        </div>
+      </div>
+      <div class="skill-cat">
+        <div class="skill-cat-name">Data & IA</div>
+        <div class="pills">
+          <span class="pill">Machine Learning</span><span class="pill">Deep Learning</span>
+          <span class="pill">Scikit-learn</span><span class="pill">Pandas</span>
+          <span class="pill">Data Mining</span><span class="pill">Power BI</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     EXPÉRIENCE
+══════════════════════════════════════ -->
+<section id="experience">
+  <div class="container">
+    <div class="sec-label">
+      <span class="sec-label-num">02</span>
+      <div class="sec-label-line"></div>
+      <span class="sec-label-text">Parcours professionnel</span>
+    </div>
+    <h2 class="sec-title">Expériences <em>professionnelles</em></h2>
+    <div class="exp-wrap">
+
+      <div class="exp-row">
+        <div class="exp-l">
+          <div class="exp-period">07/2025 — 08/2025</div>
+          <div class="exp-co">Dotcom Nebel</div>
+          <span class="exp-badge">Stage PFA · 2 mois</span>
+        </div>
+        <div class="exp-r">
+          <div class="exp-title">Plateforme intelligente de gestion des rendez-vous médicaux</div>
+          <div class="exp-stack">
+            <span class="stack-tag">Angular</span><span class="stack-tag">Node.js</span>
+            <span class="stack-tag">PostgreSQL</span><span class="stack-tag">REST API</span>
+          </div>
+          <ul class="exp-ul">
+            <li>Réservation en ligne avec notifications automatiques par e-mail</li>
+            <li>Gestion des dossiers médicaux patients</li>
+            <li>Conception de l'interface utilisateur et intégration backend</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="exp-row">
+        <div class="exp-l">
+          <div class="exp-period">02/2023 — 05/2023</div>
+          <div class="exp-co">MTD Group — Sfax</div>
+          <span class="exp-badge">Stage PFE · 4 mois</span>
+        </div>
+        <div class="exp-r">
+          <div class="exp-title">Application web de gestion commerciale</div>
+          <div class="exp-stack">
+            <span class="stack-tag">CakePHP</span><span class="stack-tag">Python</span>
+            <span class="stack-tag">MySQL</span><span class="stack-tag">Bootstrap</span>
+          </div>
+          <ul class="exp-ul">
+            <li>Développement full stack du module d'achat</li>
+            <li>Gestion complète des ventes, achats et factures</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="exp-row">
+        <div class="exp-l">
+          <div class="exp-period">07/2024 — 08/2024</div>
+          <div class="exp-co">Dotcom Nebel</div>
+          <span class="exp-badge">Stage d'été · 2 mois</span>
+        </div>
+        <div class="exp-r">
+          <div class="exp-title">Application mobile de quiz interactif</div>
+          <div class="exp-stack">
+            <span class="stack-tag">Flutter</span><span class="stack-tag">Node.js</span>
+            <span class="stack-tag">PostgreSQL</span><span class="stack-tag">REST API</span>
+          </div>
+          <ul class="exp-ul">
+            <li>Système de quiz avec score en temps réel</li>
+            <li>Authentification et gestion des utilisateurs</li>
+            <li>Design et ergonomie de l'interface mobile</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="exp-row">
+        <div class="exp-l">
+          <div class="exp-period">06/2024</div>
+          <div class="exp-co">ITechData — Sfax</div>
+          <span class="exp-badge">Stage · 1 mois</span>
+        </div>
+        <div class="exp-r">
+          <div class="exp-title">Application desktop de gestion de stock</div>
+          <div class="exp-stack">
+            <span class="stack-tag">WinDev 17</span>
+          </div>
+          <ul class="exp-ul">
+            <li>Gestion des produits, clients et facturation</li>
+            <li>Génération de rapports PDF et automatisation des mises à jour</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PROJETS
+══════════════════════════════════════ -->
+<section id="projects">
+  <div class="container">
+    <div class="sec-label">
+      <span class="sec-label-num">03</span>
+      <div class="sec-label-line"></div>
+      <span class="sec-label-text">Réalisations</span>
+    </div>
+    <h2 class="sec-title">Projets <em>académiques</em></h2>
+    <div class="proj-grid">
+
+      <div class="proj-card">
+        <div class="proj-bg-num">01</div>
+        <div class="proj-cat">DevOps · Cloud</div>
+        <div class="proj-title">Déploiement FastAPI avec CI/CD GitLab & Docker</div>
+        <div class="proj-desc">Pipeline complet d'automatisation du développement, test et déploiement d'une application web sur Azure VM.</div>
+        <div class="proj-stack">
+          <span>FastAPI</span><span>Python</span><span>Docker</span>
+          <span>GitLab CI/CD</span><span>Azure VM</span><span>DockerHub</span>
+        </div>
+        <ul class="proj-ul">
+          <li>Conteneurisation avec Docker</li>
+          <li>Pipeline CI pour tests unitaires et couverture de code</li>
+          <li>Déploiement automatisé sur Azure VM via SSH</li>
+          <li>Publication automatique des images sur DockerHub</li>
+        </ul>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-bg-num">02</div>
+        <div class="proj-cat">Architecture · Backend</div>
+        <div class="proj-title">Architecture microservices — Cabinet médical</div>
+        <div class="proj-desc">Application distribuée pour gérer patients, rendez-vous et factures avec une architecture microservices complète.</div>
+        <div class="proj-stack">
+          <span>Spring Boot</span><span>Spring Cloud</span><span>Eureka</span>
+          <span>OpenFeign</span><span>API Gateway</span><span>MySQL</span>
+        </div>
+        <ul class="proj-ul">
+          <li>Microservices indépendants : patients, RDV, authentification</li>
+          <li>Service discovery Eureka & Config Server centralisé</li>
+          <li>Communication inter-services via OpenFeign</li>
+          <li>Documentation API avec Swagger & Postman</li>
+        </ul>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-bg-num">03</div>
+        <div class="proj-cat">Intelligence Artificielle</div>
+        <div class="proj-title">Classification de la consommation énergétique</div>
+        <div class="proj-desc">Application d'analyse prédictive pour classer et segmenter les profils de consommation avec du Machine Learning.</div>
+        <div class="proj-stack">
+          <span>Python</span><span>Pandas</span><span>Scikit-learn</span>
+          <span>K-Means</span><span>Flask</span>
+        </div>
+        <ul class="proj-ul">
+          <li>Préparation et traitement de données réelles</li>
+          <li>Clustering K-Means pour segmentation des profils</li>
+          <li>Déploiement du modèle via interface Flask</li>
+        </ul>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-bg-num">04</div>
+        <div class="proj-cat">Mobile · Personnel</div>
+        <div class="proj-title">Application "Check My Health"</div>
+        <div class="proj-desc">Application mobile de suivi santé avec interface intuitive et gestion des données utilisateur.</div>
+        <div class="proj-stack">
+          <span>Flutter</span><span>Dart</span>
+        </div>
+        <ul class="proj-ul">
+          <li>Interface cross-platform ergonomique</li>
+          <li>Suivi et historique des données de santé</li>
+        </ul>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-bg-num">05</div>
+        <div class="proj-cat">Full Stack · Web</div>
+        <div class="proj-title">Plateforme de gestion de projet</div>
+        <div class="proj-desc">Application web complète de gestion de projets avec suivi des tâches et collaboration d'équipe.</div>
+        <div class="proj-stack">
+          <span>Angular</span><span>Spring Boot</span><span>MySQL</span>
+        </div>
+        <ul class="proj-ul">
+          <li>Gestion des utilisateurs et des rôles</li>
+          <li>Suivi des tâches et jalons de projet</li>
+        </ul>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-bg-num">06</div>
+        <div class="proj-cat">Full Stack · Microservices</div>
+        <div class="proj-title">Application "Kharja" — Consultation en ligne</div>
+        <div class="proj-desc">Plateforme web avec architecture microservices pour la gestion de consultations et la prise de rendez-vous.</div>
+        <div class="proj-stack">
+          <span>Angular</span><span>Spring Boot</span><span>Microservices</span>
+        </div>
+        <ul class="proj-ul">
+          <li>Prise de rendez-vous en ligne</li>
+          <li>Gestion des consultations médecin/patient</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FORMATION
+══════════════════════════════════════ -->
+<section id="education">
+  <div class="container">
+    <div class="sec-label">
+      <span class="sec-label-num">04</span>
+      <div class="sec-label-line"></div>
+      <span class="sec-label-text">Parcours académique</span>
+    </div>
+    <h2 class="sec-title">Formation <em>académique</em></h2>
+    <div class="edu-wrap">
+      <div class="edu-item">
+        <div class="edu-dot"></div>
+        <div class="edu-year">2023 — 2026</div>
+        <div>
+          <div class="edu-degree">Cycle d'ingénieur en Informatique</div>
+          <div class="edu-school">Spécialité Technologies Web et Multimédia<br>Institut Supérieur d'Informatique et de Multimédia de Sfax (ISIMS)</div>
+        </div>
+      </div>
+      <div class="edu-item">
+        <div class="edu-dot"></div>
+        <div class="edu-year">2020 — 2023</div>
+        <div>
+          <div class="edu-degree">Licence en Informatique de Gestion</div>
+          <div class="edu-school">Option Business Intelligence<br>Institut Supérieur d'Administration des Affaires de Sfax</div>
+          <div style="margin-top:10px;"><span class="mention">Mention Très Bien</span></div>
+        </div>
+      </div>
+      <div class="edu-item">
+        <div class="edu-dot"></div>
+        <div class="edu-year">2019 — 2020</div>
+        <div>
+          <div class="edu-degree">Baccalauréat en Informatique</div>
+          <div class="edu-school">Lycée Secondaire Chrarda · Kairouan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     LANGUES & INTÉRÊTS
+══════════════════════════════════════ -->
+<section id="interests">
+  <div class="container">
+    <div class="sec-label">
+      <span class="sec-label-num">05</span>
+      <div class="sec-label-line"></div>
+      <span class="sec-label-text">Divers</span>
+    </div>
+    <h2 class="sec-title">Langues & <em>centres d'intérêt</em></h2>
+    <div class="lang-int-grid">
+      <div>
+        <div class="lang-list">
+          <div class="lang-row">
+            <span class="lang-name">Arabe</span>
+            <div class="lang-bar"><div class="lang-fill" style="width:100%"></div></div>
+            <span class="lang-lvl">Langue maternelle</span>
+          </div>
+          <div class="lang-row">
+            <span class="lang-name">Français</span>
+            <div class="lang-bar"><div class="lang-fill" style="width:70%"></div></div>
+            <span class="lang-lvl">Intermédiaire</span>
+          </div>
+          <div class="lang-row">
+            <span class="lang-name">Anglais</span>
+            <div class="lang-bar"><div class="lang-fill" style="width:65%"></div></div>
+            <span class="lang-lvl">Intermédiaire</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="interests-wrap">
+          <span class="interest">Technologies émergentes</span>
+          <span class="interest">UI/UX Design</span>
+          <span class="interest">Dessin</span>
+          <span class="interest">Lecture</span>
+          <span class="interest">Musique</span>
+          <span class="interest">Microsoft Tech Club</span>
+          <span class="interest">Méthode Agile / Scrum</span>
+          <span class="interest">Open Source</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     CONTACT
+══════════════════════════════════════ -->
+<section id="contact">
+  <div class="container">
+    <div class="sec-label">
+      <span class="sec-label-num">06</span>
+      <div class="sec-label-line"></div>
+      <span class="sec-label-text">Prenons contact</span>
+    </div>
+    <h2 class="sec-title">Discutons d'une <em>opportunité</em></h2>
+    <div class="contact-grid">
+      <div>
+        <p class="contact-sub">Disponible pour un stage PFE de 6 mois à partir de février 2026. Ouverte aux opportunités en développement Full Stack, DevOps ou Intelligence Artificielle en Tunisie ou à l'international.</p>
+        <div>
+          <a href="mailto:heni.mayma10@gmail.com" class="clink">
+            <span class="cl-icon">✉</span>
+            <span class="cl-lbl">Email</span>
+            <span class="cl-val">heni.mayma10@gmail.com</span>
+            <span class="cl-arr">↗</span>
+          </a>
+          <a href="tel:+21626919703" class="clink">
+            <span class="cl-icon">✆</span>
+            <span class="cl-lbl">Téléphone</span>
+            <span class="cl-val">+216 26 919 703</span>
+            <span class="cl-arr">↗</span>
+          </a>
+          <a href="https://linkedin.com/in/oumaima-heni-306555241" target="_blank" class="clink">
+            <span class="cl-icon">in</span>
+            <span class="cl-lbl">LinkedIn</span>
+            <span class="cl-val">oumaima-heni-306555241</span>
+            <span class="cl-arr">↗</span>
+          </a>
+          <span class="clink" style="cursor:default;">
+            <span class="cl-icon">◎</span>
+            <span class="cl-lbl">Localisation</span>
+            <span class="cl-val">Chrarda, Kairouan — Tunisie</span>
+          </span>
+        </div>
+      </div>
+      <div class="form-box">
+        <div class="frow">
+          <label class="flbl">Nom complet</label>
+          <input type="text" class="finp" placeholder="Votre nom">
+        </div>
+        <div class="frow">
+          <label class="flbl">Email</label>
+          <input type="email" class="finp" placeholder="votre@email.com">
+        </div>
+        <div class="frow">
+          <label class="flbl">Sujet</label>
+          <input type="text" class="finp" placeholder="Stage PFE, collaboration...">
+        </div>
+        <div class="frow">
+          <label class="flbl">Message</label>
+          <textarea class="finp" placeholder="Votre message..."></textarea>
+        </div>
+        <button class="f-sub" onclick="alert('Merci ! Connectez ce formulaire à Formspree.io pour recevoir les messages.')">Envoyer →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <span class="footer-copy">© 2025 Oumaima HENI — Tous droits réservés</span>
+    <div class="footer-avail">
+      <span class="nav-dot"></span>
+      Disponible — Stage PFE Fév. 2026
+    </div>
+    <div class="footer-links">
+      <a href="mailto:heni.mayma10@gmail.com">Email</a>
+      <a href="https://linkedin.com/in/oumaima-heni-306555241" target="_blank">LinkedIn</a>
+      <a href="#hero">↑ Haut</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════
+     JAVASCRIPT — NAV LOGIC
+══════════════════════════════════════ -->
+<script>
+// ── Scroll: nav shadow + active section highlight ──
+const navEl      = document.getElementById('nav');
+const allLinks   = document.querySelectorAll('.nav-links a, #nav-drawer a');
+const sections   = document.querySelectorAll('section[id]');
+
+function onScroll() {
+  // nav shadow
+  navEl.classList.toggle('scrolled', window.scrollY > 20);
+
+  // active link by section in viewport
+  let current = '';
+  const offset = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) + 20;
+
+  sections.forEach(sec => {
+    if (window.scrollY >= sec.offsetTop - offset) {
+      current = sec.id;
+    }
+  });
+
+  allLinks.forEach(a => {
+    const href = a.getAttribute('href').replace('#', '');
+    a.classList.toggle('active', href === current);
+  });
+}
+
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll(); // run once on load
+
+// ── Hamburger menu toggle ──
+const burger  = document.getElementById('burger');
+const drawer  = document.getElementById('nav-drawer');
+
+burger.addEventListener('click', () => {
+  const isOpen = drawer.classList.toggle('open');
+  burger.classList.toggle('open', isOpen);
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+});
+
+// close drawer when a link is clicked
+document.querySelectorAll('#nav-drawer a').forEach(a => {
+  a.addEventListener('click', () => {
+    drawer.classList.remove('open');
+    burger.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+});
+
+// close drawer on resize to desktop
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 768) {
+    drawer.classList.remove('open');
+    burger.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+});
+</script>
+
+</body>
+</html>
